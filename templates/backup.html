@@ -1,0 +1,755 @@
+/* ===== Glassmorphism Header & Navbar ===== */
+header {
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  background-color: var(--container-bg);
+  
+  box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  user-select: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Logo */
+header .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: chocolate;
+}
+
+header .logo::before {
+  content: '';
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+}
+
+.logo-img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+/* Navbar */
+nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nav-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.nav-center {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+}
+
+.nav-right {
+  margin-left: auto; /* pushes logout/profile to the far right */
+}
+
+nav i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+.nav-btn {
+  position: relative;
+}
+
+/* Tooltip style */
+.nav-btn[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(210, 105, 30, 0.65);
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+}
+
+/* Show tooltip on hover */
+.nav-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(4px);
+}
+
+/* Nav buttons */
+.nav-btn, .nav-dropdown .dropdown-btn {
+  background-color: transparent;
+  color: chocolate;
+  border: none;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  text-decoration: none;
+}
+
+.nav-btn:hover, .nav-dropdown .dropdown-btn:hover {
+  color: #D2691E;
+  transform: scale(1.05);
+  border-bottom-color: #D2691E;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.nav-btn.active, .nav-dropdown .dropdown-btn.active {
+  color: #D2691E;
+  font-weight: 700;
+  border-bottom-color: #D2691E;
+  transform: scale(1.05);
+}
+
+/* Dropdown menu */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown .dropdown-btn {
+  transition: all 0.3s ease; /* add smooth scaling like profile dropdown */
+}
+
+.nav-dropdown .dropdown-btn i {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* Rotate icon and keep button scaled when active */
+.nav-dropdown.active .dropdown-btn {
+  transform: scale(1.05);
+  font-weight: 700;
+  border-bottom-color: #D2691E; /* this makes the border visible */
+}
+
+.nav-dropdown.active .dropdown-btn i {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown .dropdown-content {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10000;
+}
+
+/* Active state when clicked (fade in) */
+.nav-dropdown.active .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Dropdown links */
+.nav-dropdown .dropdown-content a {
+  display: block;
+  padding: 10px 16px;
+  color: chocolate;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: 0;
+}
+
+.nav-dropdown .dropdown-content a:hover {
+  background-color: #D2691E;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 25px;
+  padding: 8px 14px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+  transform: scale(1.05);
+}
+
+.profile-btn i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.profile-dropdown.active .profile-btn i:last-child {
+  transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.profile-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+  
+  position: absolute;
+  top: 110%;
+  right: 0;
+  min-width: 180px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: chocolate;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Show menu when active (fade in) */
+.profile-dropdown.active .profile-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Menu items */
+.profile-menu a,
+.profile-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: none;
+  text-decoration: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  color: chocolate;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-menu a:hover,
+.profile-menu button:hover {
+  background: rgba(210, 105, 30, 0.8);
+  color: #fff;
+}
+
+/* ===== MOBILE HAMBURGER MENU ===== */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mobile-menu-btn span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: chocolate;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  height: 100vh;
+  background: var(--container-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  transition: left 0.3s ease;
+  z-index: 1000;
+  padding: 80px 20px 20px;
+  overflow-y: auto;
+}
+
+.mobile-menu.active {
+  left: 0;
+}
+
+.mobile-menu-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-nav .nav-btn,
+.mobile-nav .nav-dropdown {
+  width: 100%;
+}
+
+.mobile-nav .nav-btn {
+  padding: 15px;
+  text-align: left;
+  border: none;
+  background: none;
+  border-bottom: 1px solid rgba(210, 105, 30, 0.2);
+  font-size: 1rem;
+  color: chocolate;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-nav .nav-dropdown .dropdown-btn {
+  width: 100%;
+  padding: 15px;
+  text-align: left;
+  border: none;
+  background: none;
+  border-bottom: 1px solid rgba(210, 105, 30, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: chocolate;
+}
+
+.mobile-nav .nav-dropdown .dropdown-content {
+  position: static;
+  box-shadow: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 5px;
+  min-width: 100%;
+}
+
+.mobile-nav .nav-dropdown .dropdown-content a {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(210, 105, 30, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-profile {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(210, 105, 30, 0.2);
+}
+
+.mobile-profile .profile-btn {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 15px;
+  color: chocolate;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .mobile-menu-btn,
+  .mobile-menu,
+  .mobile-menu-backdrop {
+    display: block;
+  }
+
+  /* Hide regular navigation on mobile */
+  .nav-wrapper {
+    display: none;
+  }
+
+  header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px 20px;
+  }
+
+  /* Responsive Logo for 768px */
+  header .logo {
+    font-size: 1.2rem;
+    gap: 6px;
+  }
+  
+  .logo-img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .mobile-menu {
+    width: 85%;
+  }
+
+  header .logo {
+    font-size: 1rem;
+  }
+  
+  .logo-img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .mobile-nav .nav-btn,
+  .mobile-nav .nav-dropdown .dropdown-btn {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .mobile-menu {
+    width: 90%;
+    padding: 70px 15px 15px;
+  }
+
+  header .logo {
+    font-size: 0.9rem;
+  }
+  
+  .logo-img {
+    width: 22px;
+    height: 22px;
+  }
+  
+  header {
+    padding: 10px 15px;
+  }
+}
+/* Mobile Profile Menu Styles */
+.mobile-profile .profile-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.mobile-profile .profile-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  overflow: hidden;
+  z-index: 10001;
+  margin-bottom: 10px;
+}
+
+.mobile-profile .profile-menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: chocolate;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.mobile-profile .profile-menu a:hover {
+  background: rgba(210, 105, 30, 0.8);
+  color: #fff;
+}
+
+
+<header>
+  <div class="logo" style="color: chocolate;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">Leshley's Eatery
+  </div>
+  
+  <!-- Add hamburger button -->
+  <button class="mobile-menu-btn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <div class="nav-wrapper">
+    <!-- Your existing nav content remains exactly the same -->
+    <nav class="nav-center">
+      {% if session.get('is_admin') or session.get('is_staff') %}
+        <a href="{{ url_for('dashboard') }}" class="nav-btn active" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('inventory') }}" class="nav-btn" title="Inventory"><i class="bx bx-box"></i></a>
+        <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+      {% else %}
+        <div class="nav-dropdown">
+          <button class="nav-btn dropdown-btn">Main Page<i class="bx bx-chevron-down"></i></button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('home') }}"><i class="bx bx-home"></i> Home</a>
+            <a href="{{ url_for('home') }}#menu"><i class="fa-regular fa-clipboard"></i> Menu</a>
+            <a href="{{ url_for('home') }}#about"><i class="bx bx-info-circle"></i> About Us</a>
+            <a href="{{ url_for('home') }}#rate"><i class="bx bx-star"></i> Ratings</a>
+            <a href="{{ url_for('home') }}#wews"><i class="fa-solid fa-building"></i> Leshley's Eatery</a>
+          </div>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="nav-btn active" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('add_order') }}" class="nav-btn" title="Add Order"><i class="bx bx-cart-add"></i></a>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+        {% endif %}
+      {% endif %}
+    </nav>
+
+    <div class="nav-right profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span>Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <a class="profile-action" href="{{ url_for('home') }}?form=login">
+            <i class="bx bx-log-in"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Update the mobile menu profile section -->
+<div class="mobile-menu-backdrop"></div>
+<div class="mobile-menu">
+  <div class="mobile-nav">
+    <!-- This will be populated by JavaScript -->
+  </div>
+  <div class="mobile-profile">
+    <div class="profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span>Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu" style="display: none;">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <a class="profile-action" href="{{ url_for('home') }}?form=login">
+            <i class="bx bx-log-in"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  // All nav dropdowns
+  const navDropdowns = document.querySelectorAll(".nav-dropdown");
+  // Profile dropdown
+  const profileDropdown = document.querySelector(".profile-dropdown");
+  const profileBtn = profileDropdown.querySelector(".profile-btn");
+  
+  // Mobile menu elements
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  const mobileBackdrop = document.querySelector('.mobile-menu-backdrop');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const desktopNav = document.querySelector('.nav-center');
+
+  // Copy desktop navigation to mobile menu
+  function populateMobileMenu() {
+    if (desktopNav && mobileNav) {
+      mobileNav.innerHTML = desktopNav.innerHTML;
+      
+      // Re-attach event listeners to mobile dropdowns
+      const mobileDropdowns = mobileNav.querySelectorAll('.nav-dropdown');
+      mobileDropdowns.forEach(dropdown => {
+        const button = dropdown.querySelector('.dropdown-btn');
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropdown.classList.toggle('active');
+        });
+      });
+
+      // Add click event to mobile nav buttons (non-dropdown)
+      const mobileNavButtons = mobileNav.querySelectorAll('.nav-btn:not(.dropdown-btn)');
+      mobileNavButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          toggleMobileMenu();
+        });
+      });
+    }
+  }
+
+  // Mobile menu functionality
+  function toggleMobileMenu() {
+    mobileMenuBtn.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
+    mobileBackdrop.classList.toggle('active');
+    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    
+    // Close all dropdowns when mobile menu closes
+    if (!mobileMenu.classList.contains('active')) {
+      const mobileDropdowns = mobileNav.querySelectorAll('.nav-dropdown');
+      mobileDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('active');
+      });
+    }
+  }
+
+  // Initialize mobile menu
+  populateMobileMenu();
+  
+  mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+  mobileBackdrop.addEventListener('click', toggleMobileMenu);
+
+  // Handle mobile profile dropdown
+  function setupMobileProfile() {
+    const mobileProfileBtn = document.querySelector('.mobile-profile .profile-btn');
+    const mobileProfileMenu = document.querySelector('.mobile-profile .profile-menu');
+    
+    if (mobileProfileBtn && mobileProfileMenu) {
+      mobileProfileBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        mobileProfileMenu.style.display = mobileProfileMenu.style.display === 'block' ? 'none' : 'block';
+      });
+
+      // Close mobile profile menu when clicking outside
+      document.addEventListener('click', function() {
+        if (mobileProfileMenu) {
+          mobileProfileMenu.style.display = 'none';
+        }
+      });
+
+      // Close mobile profile menu when clicking on menu items
+      const mobileProfileLinks = mobileProfileMenu.querySelectorAll('a');
+      mobileProfileLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          mobileProfileMenu.style.display = 'none';
+          toggleMobileMenu();
+        });
+      });
+    }
+  }
+
+  // Setup mobile profile after populating menu
+  setTimeout(setupMobileProfile, 100);
+
+  // Handle nav dropdowns (desktop)
+  navDropdowns.forEach(dropdown => {
+    const button = dropdown.querySelector(".dropdown-btn");
+
+    button.addEventListener("click", function (e) {
+      e.stopPropagation();
+
+      // Close other nav dropdowns and profile dropdown
+      navDropdowns.forEach(d => {
+        if (d !== dropdown) d.classList.remove("active");
+      });
+      profileDropdown.classList.remove("active");
+      profileBtn.classList.remove("active");
+
+      // Toggle current dropdown
+      const isActive = dropdown.classList.contains("active");
+      dropdown.classList.toggle("active", !isActive);
+    });
+  });
+
+  // Handle profile dropdown (desktop)
+  profileBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    // Close all nav dropdowns
+    navDropdowns.forEach(d => d.classList.remove("active"));
+
+    // Toggle profile dropdown
+    const isActive = profileDropdown.classList.contains("active");
+    profileDropdown.classList.toggle("active", !isActive);
+    profileBtn.classList.toggle("active", !isActive);
+  });
+
+  // Close everything if clicking outside
+  document.addEventListener("click", () => {
+    navDropdowns.forEach(d => d.classList.remove("active"));
+    profileDropdown.classList.remove("active");
+    profileBtn.classList.remove("active");
+  });
+
+  // Initialize notification system without affecting existing functionality
+  if (typeof addNotificationStyles === 'function') {
+    addNotificationStyles();
+  }
+  if (typeof initializeNotificationSystem === 'function') {
+    initializeNotificationSystem();
+  }
+});

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leshley's Eatery - Main page</title>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body data-logged-in="{{ 'true' if session.get('user_id') else 'false' }}">
+<!-- Scroll to top button -->
+<button id="scrollTopBtn" title="Go to top">
+  <i class='bx bx-up-arrow-alt'></i>
+</button>
+
+<!-- ===== NAVBAR ===== -->
+<header>
+  <div class="logo" style="color: chocolate;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">Leshley's Eatery
+  </div>
+  
+  <div class="nav-wrapper">
+    <nav class="nav-center">
+      <div class="nav-dropdown">
+        <button class="nav-btn dropdown-btn active">Main Page<i class="bx bx-chevron-down"></i></button>
+        <div class="dropdown-content">
+          <a href="#mainPage"><i class="bx bx-home"></i> Home</a>
+          <a href="#menu"><i class="fa-regular fa-clipboard"></i> Menu</a>
+          <a href="#about"><i class="bx bx-info-circle"></i> About Us</a>
+          <a href="#rate"><i class="bx bx-star"></i> Ratings</a>
+          <a href="#wews"><i class="fa-solid fa-building"></i> Leshley's Eatery</a>
+        </div>
+      </div>
+      <a href="{{ url_for('dashboard') }}" class="nav-btn" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+      {% if session.get('is_admin') %}
+          <a href="{{ url_for('inventory') }}" class="nav-btn" title="Inventory"><i class="bx bx-box"></i></a>
+      {% endif %}
+      <a href="{{ url_for('add_order') }}" class="nav-btn" title="Add Order"><i class="bx bx-cart-add"></i></a>
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+      {% endif %}
+    </nav>
+
+    <div class="nav-right profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span>Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <button type="button" class="profile-action" onclick="openForm('login')">
+            <i class="bx bx-log-in"></i> Login
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN PAGE / LANDING ===== -->
+<section id="mainPage">
+  <h1>Welcome to Leshley's Eatery</h1>
+  <p>
+    {% if session.get('username') %}
+      Welcome {{ session.get('username') }}, Order your food now!
+    {% else %}
+      Welcome Guest, Order your food now!
+    {% endif %}
+  </p>
+  <div class="swiper-container">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Tapsilog.jpg') }}" alt="Tapsilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Silog.jpg') }}" alt="Silog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Porksilog.jpg') }}" alt="Porksilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Malingsilog.jpg') }}" alt="Malingsilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Longsilog.jpg') }}" alt="Longsilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Hotsilog.jpg') }}" alt="Hotsilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Bangussilog.jpg') }}" alt="Bangussilog">
+      </div>
+      <div class="swiper-slide">
+        <img src="{{ url_for('static', filename='Malingsilog.jpg') }}" alt="Malingsilog">
+      </div>
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+</section>
+
+<!-- ===== MENU SECTION ===== -->
+<section id="menu" class="menu-section scroll-animate" role="menu" aria-label="Our Menu">
+  <div class="menu-header">
+    <h2 class="section-title">Our Menu</h2>
+    <p class="menu-subtitle">Your favorite Silog meals — anytime, any day!</p>
+  </div>
+
+  <div class="menu-list">
+    <!-- First row -->
+    <div class="menu-row">
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Tapsilog">
+        <div class="menu-image">
+          <img src="/static/Tapsilog.jpg" alt="Tapsilog: Perfectly marinated beef tapa with garlic rice and egg" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Tapsilog</h3>
+          <p class="desc">Perfectly marinated beef tapa with garlic rice and egg.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱120">₱120</p>
+      </div>
+
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Longsilog">
+        <div class="menu-image">
+          <img src="/static/Longsilog.jpg" alt="Longsilog: Juicy longganisa paired with garlic rice and egg" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Longsilog</h3>
+          <p class="desc">Juicy longganisa paired with garlic rice and egg.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱80">₱80</p>
+      </div>
+    </div>
+
+    <!-- Second row -->
+    <div class="menu-row">
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Bangus silog">
+        <div class="menu-image">
+          <img src="/static/Bangussilog.jpg" alt="Bangus Silog: Crispy fried milkfish with egg and flavorful rice" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Bangus Silog</h3>
+          <p class="desc">Crispy fried milkfish with egg and flavorful rice.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱90">₱90</p>
+      </div>
+
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Hotsilog">
+        <div class="menu-image">
+          <img src="/static/Hotsilog.jpg" alt="Hotsilog: Classic hotdog breakfast combo with egg and rice" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Hotsilog</h3>
+          <p class="desc">Classic hotdog breakfast combo with egg and rice.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱60">₱60</p>
+      </div>
+    </div>
+
+    <!-- Third row -->
+    <div class="menu-row">
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Porksilog">
+        <div class="menu-image">
+          <img src="/static/Porksilog.jpg" alt="Porksilog: Tender pork chop with garlic rice and sunny-side egg" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Porksilog</h3>
+          <p class="desc">Tender pork chop with garlic rice and sunny-side egg.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱70">₱70</p>
+      </div>
+
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Maling silog">
+        <div class="menu-image">
+          <img src="/static/Malingsilog.jpg" alt="Malingsilog: Classic Maling goodness served with egg and rice" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Malingsilog</h3>
+          <p class="desc">Classic Maling goodness served with egg and rice.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱50">₱50</p>
+      </div>
+    </div>
+
+    <!-- Fourth row -->
+    <div class="menu-row">
+      <div class="menu-col" role="menuitem" tabindex="0" data-food="Silog">
+        <div class="menu-image">
+          <img src="/static/Silog.jpg" alt="Silog: Simple and satisfying rice and egg plate" loading="lazy">
+        </div>
+        <div class="menu-details">
+          <h3>Silog</h3>
+          <p class="desc">Simple and satisfying — rice, and egg.</p>
+          <p class="status">Loading...</p>
+        </div>
+        <p class="price" aria-label="Price: ₱60">₱60</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT US ===== -->
+<section id="about" class="about-section">
+  <img src="{{ url_for('static', filename='2.jpg') }}" alt="Decorative Top Left" class="about-img top-left">
+  <img src="{{ url_for('static', filename='1.jpg') }}" alt="Decorative Bottom Right" class="about-img bottom-right">
+  <div class="about-container">
+    <div class="ratings-title">
+      <h2 style="color: #ffb347;">About Us</h2>
+    </div>
+    <p>
+      At <strong>Leshley's Eatery</strong>, we take pride in serving delicious and affordable Filipino meals, 
+      especially our signature <em>silog</em> dishes. Our goal is to provide every customer with a satisfying 
+      dining experience, whether you're eating with us or ordering online.  
+    </p>
+    <p>
+      Founded with passion and dedication, we aim to bring comfort food closer to the community while 
+      maintaining quality, flavor, and a friendly atmosphere.  
+    </p>
+    <p style="color: #ff8000; font-weight: bold;">
+      ⚠️ Please note: We do <strong>NOT</strong> offer delivery services. All orders must be picked up at our eatery.
+    </p>
+    <div class="about-highlights">
+      <div class="highlight">
+        <i class="bx bx-restaurant"></i>
+        <h4>Authentic Taste</h4>
+        <p>Fresh ingredients and homemade flavors in every bite.</p>
+      </div>
+      <div class="highlight">
+        <i class="bx bx-smile"></i>
+        <h4>Customer First</h4>
+        <p>We value your happiness and satisfaction above all.</p>
+      </div>
+      <div class="highlight">
+        <i class="bx bx-time-five"></i>
+        <h4>Open Daily</h4>
+        <p>We're here to serve you every day of the week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeForm()">&times;</span>
+
+    <!-- LOGIN BOX -->
+    <div class="auth-box" id="loginBox">
+      <h2>Login</h2>
+      <div class="auth-message" id="loginMessage">{% if login_error %}{{ login_error }}{% endif %}</div>
+      <form id="loginForm" action="{{ url_for('auth') }}" method="POST">
+        <input type="hidden" name="action" value="login" />
+        <input type="text" id="loginUsername" name="username" placeholder="Username" required>
+        <div class="password-wrapper">
+          <input type="password" name="password" id="loginPassword" placeholder="Password" required />
+          <i class="bx bx-show eye-icon" id="toggleLoginPass"></i>
+        </div>
+        <button type="submit">Login</button>
+        <div style="margin-top: 10px; text-align: center; font-size: 0.9em;">
+          <span style="color: #ffb347; font-weight: bold;">For Admin/Staff:</span><br>
+          <a href="javascript:void(0)" onclick="switchAuth('staff')">Staff Login</a> | 
+          <a href="javascript:void(0)" onclick="switchAuth('admin')">Admin Login</a>
+        </div>     
+      </form>
+      <p><span class="switch-link" onclick="switchAuth('register')">Don't have an account? Register</span></p>
+    </div>
+
+    <!-- REGISTER BOX -->
+    <div class="auth-box" id="registerBox">
+      <h2>Register</h2>
+      <div class="auth-message" id="registerMessage">{% if register_error %}{{ register_error }}{% endif %}</div>
+      <form id="registerForm" action="{{ url_for('auth') }}" method="POST">
+        <input type="hidden" name="action" value="register" />
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="email" name="email" placeholder="Email" required />
+        
+        <div class="password-wrapper">
+          <input type="password" name="password" id="regPassword" placeholder="Password" required />
+          <i class="bx bx-show eye-icon" id="toggleRegPass"></i>
+        </div>
+        
+        <!-- 🔐 Password Strength Indicator -->
+        <div class="password-strength hidden">
+          <div class="strength-bar">
+            <div class="strength-fill" id="strengthFill"></div>
+          </div>
+          <small class="strength-text" id="strengthText">Password strength</small>
+        </div>
+        
+        <div class="password-wrapper">
+          <input type="password" name="confirm_password" id="regConfirmPassword" placeholder="Confirm Password" required />
+          <i class="bx bx-show eye-icon" id="toggleRegConfirmPass"></i>
+        </div>
+        
+        <input type="text" name="phone" placeholder="Phone Number" required />
+        <input type="text" name="address" placeholder="Address" required />
+        <button type="submit" id="registerSubmit">Register</button>
+      </form>
+      <p><span class="switch-link" onclick="switchAuth('login')">Already have an account? Login</span></p>
+    </div>
+
+
+    <!-- Admin Login Box -->
+    <div id="adminBox" class="auth-box">
+      <h3>Admin Login</h3>
+      <form id="adminForm">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login as Admin</button>
+      </form>
+      <p style="font-size:0.9em; margin-top:10px;">
+        <a href="javascript:void(0)" onclick="switchAuth('login')">Back to User Login</a>
+      </p>
+    </div>
+
+    <!-- Staff Login Box -->
+    <div id="staffBox" class="auth-box">
+      <h3>Staff Login</h3>
+      <form id="staffForm">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login as Staff</button>
+      </form>
+      <p style="font-size:0.9em; margin-top:10px;">
+        <a href="javascript:void(0)" onclick="switchAuth('login')">Back to User Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RATINGS & COMMENTS ===== -->
+<section id="rate" class="ratings-section scroll-animate">
+  <div class="ratings-container">
+    <h2 class="ratings-title">🍴 Customer Ratings & Comments</h2>
+    <p class="ratings-subtitle">See what others think about our meals!</p>
+    <h3 style="color: #ffb347; margin-bottom: 10px; text-shadow: 0px 0px 8px rgba(255,179,71,0.6);">Food Ratings</h3>
+    <div class="rating-items-grid">
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Tapsilog.jpg') }}" alt="Tapsilog" class="rating-img">
+        <h4>Tapsilog</h4>
+        <div class="stars" data-food="Tapsilog">
+          <i class='bx bx-star' onclick="rateFood('Tapsilog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Tapsilog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Tapsilog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Tapsilog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Tapsilog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Tapsilog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Silog.jpg') }}" alt="Silog" class="rating-img">
+        <h4>Silog</h4>
+        <div class="stars" data-food="Silog">
+          <i class='bx bx-star' onclick="rateFood('Silog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Silog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Silog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Silog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Silog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Silog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Porksilog.jpg') }}" alt="Porksilog" class="rating-img">
+        <h4>Porksilog</h4>
+        <div class="stars" data-food="Porksilog">
+          <i class='bx bx-star' onclick="rateFood('Porksilog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Porksilog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Porksilog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Porksilog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Porksilog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Porksilog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Longsilog.jpg') }}" alt="Longsilog" class="rating-img">
+        <h4>Longsilog</h4>
+        <div class="stars" data-food="Longsilog">
+          <i class='bx bx-star' onclick="rateFood('Longsilog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Longsilog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Longsilog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Longsilog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Longsilog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Longsilog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Malingsilog.jpg') }}" alt="Maling silog" class="rating-img">
+        <h4>Malingsilog</h4>
+        <div class="stars" data-food="Maling silog">
+          <i class='bx bx-star' onclick="rateFood('Maling silog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Maling silog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Maling silog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Maling silog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Maling silog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Maling silog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Bangussilog.jpg') }}" alt="Bangus silog" class="rating-img">
+        <h4>Bangus silog</h4>
+        <div class="stars" data-food="Bangus silog">
+          <i class='bx bx-star' onclick="rateFood('Bangus silog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Bangus silog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Bangus silog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Bangus silog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Bangus silog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Bangus silog">⭐ Average Rating: 0.0</p>
+      </div>
+
+      <div class="rating-item">
+        <img src="{{ url_for('static', filename='Hotsilog.jpg') }}" alt="Hotsilog" class="rating-img">
+        <h4>Hotsilog</h4>
+        <div class="stars" data-food="Hotsilog">
+          <i class='bx bx-star' onclick="rateFood('Hotsilog', 1)"></i>
+          <i class='bx bx-star' onclick="rateFood('Hotsilog', 2)"></i>
+          <i class='bx bx-star' onclick="rateFood('Hotsilog', 3)"></i>
+          <i class='bx bx-star' onclick="rateFood('Hotsilog', 4)"></i>
+          <i class='bx bx-star' onclick="rateFood('Hotsilog', 5)"></i>
+        </div>
+        <p class="avg-rating" id="avg-Hotsilog">⭐ Average Rating: 0.0</p>
+      </div>
+    </div>
+  </div>
+<div id="global-comment-section" class="comments-section">
+  <h3>Comments</h3>
+  
+  <div id="global-comments" class="comment-list"></div>
+
+  <div class="comment-input-wrapper">
+    <input type="text" id="global-comment-input" placeholder="Write a comment..." />
+    <button id="global-comment-submit">Post</button>
+  </div>
+</div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer id="wews" class="footer">
+    <div class="footer-top">
+        <div class="footer-container">
+            <div class="footer-row">
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#about">About Us</a>
+                    <a href="{{ url_for('add_order') }}#order">Add Order</a>
+                    <a href="#rate">Ratings</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <p><i class="fa-solid fa-location-dot"></i> Bayanihan St, Caloocan, Philippines</p>
+                    <p><i class="fa fa-phone-alt"></i> 09095136578</p>
+                    <p><i class="fa fa-envelope"></i> LeshleysEatery@gmail.com</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/profile.php?id=100071296583458" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@malupitonofficial8425" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Opening</h4>
+                    <h5>Monday - Saturday</h5>
+                    <p>09AM - 09PM</p>
+                    <h5>Sunday</h5>
+                    <p>10AM - 08PM</p>
+                </div>
+                <div class="footer-col">
+                  <h4>Register</h4>
+                  <p>Create an account to order your favorite meals!</p>
+                  <button type="button" class="footer-register-btn" onclick="openForm('register')">Register</button>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; Leshley's Eatery | All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+
+<script>
+  // Open modal from Flask context or query param
+  const initialForm = "{{ show_form|default('') }}";
+  const urlParams = new URLSearchParams(window.location.search);
+  const formToOpen = urlParams.get('form'); // "login" or "register"
+
+  const form = initialForm || formToOpen;
+  if (form) {
+      openForm(form);
+      window.history.replaceState({}, document.title, window.location.pathname); // remove query param
+  }
+</script>
+
+</body>
+</html>

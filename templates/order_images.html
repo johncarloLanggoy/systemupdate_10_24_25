@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Images - Leshley's Eatery</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        /* Reuse your existing CSS variables and styles */
+        :root {
+            --primary-bg: #ff8000;
+            --primary-bg-light: #ff9c33;
+            --container-bg: #1b1b1b;
+            --section-title-bg: #ffb347;
+            --text-white: #fff;
+            --text-dark: #1b1b1b;
+            --button-bg: #ff8000;
+            --button-hover: #ffb347;
+            --card-bg: #2a2a2a;
+            --card-hover: #3a3a3a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg), var(--primary-bg-light), var(--primary-bg));
+            background-size: 300% 300%;
+            animation: gradientShift 12s ease infinite;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background-color: #D2691E;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255,128,0,0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Main content */
+        .main-container {
+            max-width: 1400px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        /* Order sections */
+        .order-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            color: var(--section-title-bg);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--section-title-bg);
+            padding-bottom: 10px;
+        }
+
+        /* Orders grid */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .order-card {
+            background: var(--card-hover);
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--section-title-bg);
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 128, 0, 0.3);
+        }
+
+        .order-info {
+            margin-bottom: 15px;
+        }
+
+        .order-info p {
+            margin: 5px 0;
+            color: var(--text-white);
+        }
+
+        .order-info strong {
+            color: var(--section-title-bg);
+        }
+
+        .order-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid var(--section-title-bg);
+        }
+
+        .no-image {
+            width: 100%;
+            height: 200px;
+            background: #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1ecf1; color: #0c5460; }
+        .status-served { background: #d1e7dd; color: #0f5132; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Image modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 128, 0, 0.5);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-modal:hover {
+            color: var(--section-title-bg);
+        }
+        .status-rejected { 
+            background: #f8d7da; 
+            color: #721c24; 
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                margin-top: 100px;
+                padding: 0 10px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="{{ url_for('inventory') }}" class="back-btn">
+        <span>←</span> Back to Inventory
+    </a>
+
+    <div class="main-container">
+        <h1 class="page-title">Order Images & Receipts</h1>
+
+        <!-- Pending Orders Section -->
+        <div class="order-section">
+            <h2 class="section-title">Pending Orders</h2>
+            <div class="orders-grid">
+                {% for order in pending_orders %}
+                <div class="order-card">
+                    <div class="order-info">
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Customer:</strong> {{ order.cust_name }}</p>
+                        <p><strong>Food:</strong> {{ order.food }} (x{{ order.quantity }})</p>
+                        <p><strong>Total:</strong> ₱{{ order.price }}</p>
+                        <p><strong>Date:</strong> {{ order.order_date }}</p>
+                        <span class="status-badge status-pending">{{ order.tracker }}</span>
+                    </div>
+                    {% if order.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=order.image_path) }}" 
+                         alt="Order receipt for {{ order.food }}" 
+                         class="order-image"
+                         onclick="openImageModal(this.src)">
+                    {% else %}
+                    <div class="no-image">No image uploaded</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">No pending orders with images</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Rejected Orders Section -->
+        <div class="order-section">
+            <h2 class="section-title">Rejected Orders</h2>
+            <div class="orders-grid">
+                {% for order in rejected_orders %}
+                <div class="order-card">
+                    <div class="order-info">
+                        <p><strong>Original Order ID:</strong> #{{ order.original_order_id }}</p>
+                        <p><strong>Customer:</strong> {{ order.cust_name }}</p>
+                        <p><strong>Food:</strong> {{ order.food }} (x{{ order.quantity }})</p>
+                        <p><strong>Total:</strong> ₱{{ order.price }}</p>
+                        <p><strong>Order Date:</strong> {{ order.order_date }}</p>
+                        <p><strong>Rejected By:</strong> {{ order.rejected_by }}</p>
+                        <p><strong>Rejected At:</strong> {{ order.rejected_at }}</p>
+                        {% if order.reason %}
+                        <p><strong>Reason:</strong> {{ order.reason }}</p>
+                        {% endif %}
+                        <span class="status-badge status-rejected">Rejected</span>
+                    </div>
+                    {% if order.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=order.image_path) }}" 
+                        alt="Rejected order receipt for {{ order.food }}" 
+                        class="order-image"
+                        onclick="openImageModal(this.src)">
+                    {% else %}
+                    <div class="no-image">No image uploaded</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">No rejected orders with images</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Approved Orders Section -->
+        <div class="order-section">
+            <h2 class="section-title">Approved & In-Progress Orders</h2>
+            <div class="orders-grid">
+                {% for order in approved_orders %}
+                <div class="order-card">
+                    <div class="order-info">
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Customer:</strong> {{ order.cust_name }}</p>
+                        <p><strong>Food:</strong> {{ order.food }} (x{{ order.quantity }})</p>
+                        <p><strong>Total:</strong> ₱{{ order.price }}</p>
+                        <p><strong>Date:</strong> {{ order.order_date }}</p>
+                        <span class="status-badge status-approved">{{ order.tracker }}</span>
+                    </div>
+                    {% if order.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=order.image_path) }}" 
+                         alt="Order receipt for {{ order.food }}" 
+                         class="order-image"
+                         onclick="openImageModal(this.src)">
+                    {% else %}
+                    <div class="no-image">No image uploaded</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">No approved orders with images</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Served Orders Section -->
+        <div class="order-section">
+            <h2 class="section-title">Served Orders</h2>
+            <div class="orders-grid">
+                {% for order in served_orders %}
+                <div class="order-card">
+                    <div class="order-info">
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Customer:</strong> {{ order.cust_name }}</p>
+                        <p><strong>Food:</strong> {{ order.food }} (x{{ order.quantity }})</p>
+                        <p><strong>Total:</strong> ₱{{ order.price }}</p>
+                        <p><strong>Date:</strong> {{ order.order_date }}</p>
+                        <p><strong>Served:</strong> {{ order.served_date or 'N/A' }}</p>
+                        <span class="status-badge status-served">Served</span>
+                    </div>
+                    {% if order.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=order.image_path) }}" 
+                         alt="Order receipt for {{ order.food }}" 
+                         class="order-image"
+                         onclick="openImageModal(this.src)">
+                    {% else %}
+                    <div class="no-image">No image uploaded</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">No served orders with images</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <button class="close-modal" onclick="closeImageModal()">&times;</button>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = src;
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
+</body>
+</html>

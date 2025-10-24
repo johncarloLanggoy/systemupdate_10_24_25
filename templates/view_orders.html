@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leshley's Eatery - View Orders</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="{{ url_for('static', filename='view_orders.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body class="{% if session.get('is_admin') %}admin{% endif %}">
+
+<!-- Header & Navigation -->
+<header>
+  <div class="logo" style="color: chocolate;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">Leshley's Eatery
+  </div>
+  
+  <div class="nav-wrapper">
+    <nav class="nav-center">
+      {% if session.get('is_admin') or session.get('is_staff') %}
+        <a href="{{ url_for('dashboard') }}" class="nav-btn" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('inventory') }}" class="nav-btn" title="Inventory"><i class="bx bx-box"></i></a>
+        <a href="{{ url_for('view_orders') }}" class="nav-btn active" title="Orders"><i class="bx bx-receipt"></i></a>
+      {% else %}
+        <div class="nav-dropdown">
+          <button class="nav-btn dropdown-btn">Main Page<i class="bx bx-chevron-down"></i></button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('home') }}"><i class="bx bx-home"></i> Home</a>
+            <a href="{{ url_for('home') }}#menu"><i class="fa-regular fa-clipboard"></i> Menu</a>
+            <a href="{{ url_for('home') }}#about"><i class="bx bx-info-circle"></i> About Us</a>
+            <a href="{{ url_for('home') }}#rate"><i class="bx bx-star"></i> Ratings</a>
+            <a href="{{ url_for('home') }}#wews"><i class="fa-solid fa-building"></i> Leshley's Eatery</a>
+          </div>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="nav-btn" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('add_order') }}" class="nav-btn" title="Add Order"><i class="bx bx-cart-add"></i></a>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('view_orders') }}" class="nav-btn active" title="Orders"><i class="bx bx-receipt"></i></a>
+        {% endif %}
+      {% endif %}
+    </nav>
+
+    <div class="nav-right profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span>Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <a class="profile-action" href="{{ url_for('home') }}?form=login">
+            <i class="bx bx-log-in"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Add this right after the <body> tag in view_orders.html -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% if not session.get('is_admin') and not session.get('is_staff') %}
+<!-- My Orders Table (Visible only to regular users) -->
+<div id="order" class="view-container container">
+  <h2 style="color: #ffb347; margin-bottom: 10px; text-shadow: 0px 0px 8px rgba(255,179,71,0.6);">My Orders</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Order Date</th>
+        <th>Customer Name</th>
+        <th>Contact Number</th>
+        <th>Food</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Payment Status</th>
+      </tr>
+    </thead>
+    <tbody id="ordersTableBody">
+      {% for order in orders %}
+      <tr>
+        <td colspan="7">
+          <!-- Progress Tracker -->
+          <div class="order-tracker" data-order-id="{{ order['id'] }}">
+              <div class="progress"></div>
+              <div class="step {% if order['tracker'] in ['Preparing','Cooking','Ready'] %}active{% endif %}" data-status="Preparing">Preparing</div>
+              <div class="step {% if order['tracker'] in ['Cooking','Ready'] %}active{% endif %}" data-status="Cooking">Cooking</div>
+              <div class="step {% if order['tracker'] == 'Ready' %}active{% endif %}" data-status="Ready">Ready to Pick Up</div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>{{ order['order_date'] }}</td>
+        <td>{{ order['cust_name'] }}</td>
+        <td>{{ order['cust_contact'] }}</td>
+        <td>{{ order['food'] }}</td>
+        <td>{{ order['quantity'] }}</td>
+        <td>₱{{ order.price }}</td>
+        <td>{{ order['payment_status'] }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align:center;">No orders found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Served Orders Table -->
+<div id="servedOrders" class="view-container container">
+  <h2 style="color: #ffb347; margin-bottom: 10px; text-shadow: 0px 0px 8px rgba(255,179,71,0.6);">Served Orders</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Order Date</th>
+        <th>Customer Name</th>
+        <th>Contact Number</th>
+        <th>Food</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Served Date</th>
+      </tr>
+    </thead>
+    <tbody id="servedOrdersTableBody">
+      {% if served_orders and served_orders|length > 0 %}
+        {% for order in served_orders %}
+          <tr data-order-id="{{ order['id'] }}">
+            <td>{{ order['order_date'] }}</td>
+            <td>{{ order['cust_name'] }}</td>
+            <td>{{ order['cust_contact'] }}</td>
+            <td>{{ order['food'] }}</td>
+            <td>{{ order['quantity'] }}</td>
+            <td>₱{{ order.price }}</td>
+            <td>{{ order['payment_status'] }}</td>
+            <td>{{ order['served_date'] or '—' }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="8" style="text-align:center;">No served orders found.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- Pending Orders & Customer Receipts Row -->
+{% if session.get('is_admin') or session.get('is_staff') %}
+<div class="row-tables" style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom: 30px;">
+    
+    <!-- Pending Orders Table -->
+    <div class="table-container" style="flex:1; min-width:400px;">
+        <h2 class="table-title">Pending Orders</h2>
+        <div class="table-wrapper">
+            <table class="styled-table pending-orders-table">
+              <thead>
+                  <tr>
+                      <th>Order Date</th>
+                      <th>Customer</th>
+                      <th>Contact</th>
+                      <th>Food</th>
+                      <th>Qty</th>
+                      <th>Stock</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+
+              <tbody id="pendingOrdersTableBody">
+                  {% if pending_orders and pending_orders|length > 0 %}
+                      {% for order in pending_orders %}
+                      <tr id="pending-order-{{ order['id'] }}">
+                          <td class="truncate">{{ order['order_date'] }}</td>
+                          <td class="truncate">{{ order['cust_name'] }}</td>
+                          <td class="truncate">{{ order['cust_contact'] }}</td>
+                          <td class="truncate">{{ order['food'] }}</td>
+                          <td class="center">{{ order['quantity'] }}</td>
+                          <td class="center stock-info" data-food="{{ order['food'] }}">
+                              <span class="stock-value">Loading...</span>
+                          </td>
+                          <td class="price">₱{{ order.price }}</td>
+                          <td class="status">{{ order['payment_status'] }}</td>
+                          <td class="action">
+                              <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                                  {% if session.get('is_staff') %}
+                                      <!-- Staff can approve/reject -->
+                                      <button class="approve-btn" data-order-id="{{ order.id }}" title="Approve Order">
+                                          <i class="bx bx-check"></i> Approve
+                                      </button>
+                                      <button class="reject-btn" data-order-id="{{ order.id }}" title="Reject Order">
+                                          <i class="bx bx-x"></i> Reject
+                                      </button>
+                                  {% else %}
+                                      <!-- Admin sees disabled buttons -->
+                                      <button class="approve-btn" disabled style="opacity: 0.5; cursor: not-allowed;" title="Admin cannot approve orders">
+                                          <i class="bx bx-check"></i> Approve
+                                      </button>
+                                      <button class="reject-btn" disabled style="opacity: 0.5; cursor: not-allowed;" title="Admin cannot reject orders">
+                                          <i class="bx bx-x"></i> Reject
+                                      </button>
+                                  {% endif %}
+                              </div>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  {% else %}
+                      <tr>
+                          <td colspan="9" class="no-orders">No pending orders.</td>
+                      </tr>
+                  {% endif %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Customer Receipts Table -->
+    <div class="table-container" style="flex:1; min-width:400px;">
+        <h2 class="table-title">Customer Receipts</h2>
+        <div class="table-wrapper">
+            <table class="styled-table receipts-table">
+                <thead>
+                    <tr>
+                        <th>Order Date</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pending_orders and pending_orders|length > 0 %}
+                        {% for order in pending_orders %}
+                        <tr>
+                            <td class="truncate">{{ order['order_date'] }}</td>
+                            <td class="truncate">{{ order['cust_name'] }}</td>
+                            <td class="truncate center">{{ order['cust_contact'] }}</td>
+                            <td class="center">
+                                {% if order['image_path'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' ~ order['image_path']) }}" 
+                                        alt="Receipt" class="receipt-img" 
+                                        style="width:80px; border-radius:5px; object-fit:cover;">
+                                {% else %}
+                                    <span style="color: #888; font-style: italic;">No Image</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="no-orders">No receipts uploaded.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+
+<!-- All Customer Orders Table -->
+{% if session.get('is_admin') or session.get('is_staff') %}
+<div id="allOrders" class="view-container container">
+    <h2 style="color: #ffb347; margin-bottom: 10px; text-shadow: 0px 0px 8px rgba(255,179,71,0.6);">All Customer Orders</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Order Date</th>
+                <th>Customer Name</th>
+                <th>Contact Number</th>
+                <th>Food</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Payment Status</th>
+            </tr>
+        </thead>
+        <tbody id="allOrdersTableBody">
+            {% for order in approved_orders %}
+            <!-- Progress Tracker Row -->
+            <tr class="progress-row">
+                <td colspan="7">
+                    <div class="order-tracker {% if not session.get('is_staff') %}admin-view{% endif %}" data-order-id="{{ order['id'] }}">
+                        <div class="progress"></div>
+                        <div class="step {% if order['tracker'] in ['Approved','Preparing','Cooking','Ready'] %}active{% endif %} 
+                                   {% if not session.get('is_staff') %}admin-step{% endif %}" 
+                             data-status="Preparing">Preparing</div>
+                        <div class="step {% if order['tracker'] in ['Cooking','Ready'] %}active{% endif %} 
+                                   {% if not session.get('is_staff') %}admin-step{% endif %}" 
+                             data-status="Cooking">Cooking</div>
+                        <div class="step {% if order['tracker'] == 'Ready' %}active{% endif %} 
+                                   {% if not session.get('is_staff') %}admin-step{% endif %}" 
+                             data-status="Ready">Ready to Pick Up</div>
+                    </div>
+                </td>
+            </tr>
+            <!-- Order Details Row -->
+            <tr data-order-id="{{ order['id'] }}">
+                <td>{{ order['order_date'] }}</td>
+                <td>{{ order['cust_name'] }}</td>
+                <td>{{ order['cust_contact'] }}</td>
+                <td>{{ order['food'] }}</td>
+                <td>{{ order['quantity'] }}</td>
+                <td>₱{{ order.price }}</td>
+                <td>
+                    {{ order['payment_status'] }}
+                    {% if session.get('is_staff') %}
+                        <!-- Staff can use dropdown -->
+                        <select class="status-select" data-order-id="{{ order['id'] }}" style="margin-left: 10px; padding: 5px;">
+                            <option value="Preparing" {% if order.tracker == 'Preparing' %}selected{% endif %}>Preparing</option>
+                            <option value="Cooking" {% if order.tracker == 'Cooking' %}selected{% endif %}>Cooking</option>
+                            <option value="Ready" {% if order.tracker == 'Ready' %}selected{% endif %}>Ready</option>
+                        </select>
+                    {% else %}
+                        <!-- Admin sees disabled display -->
+                        <select disabled style="margin-left: 10px; padding: 5px; opacity: 0.5; cursor: not-allowed; background: #333; color: #888;">
+                            <option selected>{{ order.tracker }}</option>
+                        </select>
+                        <small style="color: #888; font-size: 0.8rem; margin-left: 5px;">(Staff only)</small>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align:center;">No orders found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Ready to Pick Up Orders -->
+{% if session.is_admin or session.is_staff %}
+<div class="ready-pickup-container">
+    <h2 style="color: #ffb347; margin-bottom: 10px; text-shadow: 0px 0px 8px rgba(255,179,71,0.6);">Ready to Pick Up Orders</h2>
+    <table class="ready-pickup-table">
+        <thead>
+            <tr>
+                <th>Order Date</th>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Food</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if ready_pickup %}
+                {% for order in ready_pickup %}
+                <tr data-order-id="{{ order.id }}">
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.cust_name }}</td>
+                    <td>{{ order.cust_contact }}</td>
+                    <td>{{ order.food }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>₱{{ order.price }}</td>
+                    <td>{{ order.tracker }}</td>
+                    <td>
+                        {% if session.get('is_staff') %}
+                            <button class="check-btn" data-order-id="{{ order.id }}">
+                                <i class="bx bx-check"></i> Serve
+                            </button>
+                        {% elif session.get('is_admin') %}
+                            <button class="check-btn" data-order-id="{{ order.id }}" disabled style="opacity:0.5; cursor:not-allowed;">
+                                <i class="bx bx-check"></i> Serve
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">No ready to pick up orders.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='view_orders.js') }}"></script>
+</body>
+</html>

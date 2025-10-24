@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leshley's Eatery - Add Order</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{{ url_for('static', filename='add_order.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body data-logged-in="{{ 'true' if session.get('user_id') else 'false' }}">
+<header>
+  <div class="logo" style="color: chocolate;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">Leshley's Eatery
+  </div>
+  
+  <!-- ADD THIS: Mobile Hamburger Button -->
+  <button class="mobile-menu-btn" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-wrapper">
+    <nav class="nav-center">
+      <div class="nav-dropdown">
+        <button class="nav-btn dropdown-btn">Main Page<i class="bx bx-chevron-down"></i></button>
+        <div class="dropdown-content">
+          <a href="{{ url_for('home') }}"><i class="bx bx-home"></i> Home</a>
+          <a href="{{ url_for('home') }}#menu"><i class="fa-regular fa-clipboard"></i> Menu</a>
+          <a href="{{ url_for('home') }}#about"><i class="bx bx-info-circle"></i> About Us</a>
+          <a href="{{ url_for('home') }}#rate"><i class="bx bx-star"></i> Ratings</a>
+          <a href="{{ url_for('home') }}#wews"><i class="fa-solid fa-building"></i> Leshley's Eatery</a>
+        </div>
+      </div>
+      <a href="{{ url_for('dashboard') }}" class="nav-btn" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+      {% if session.get('is_admin') %}
+          <a href="{{ url_for('inventory') }}" class="nav-btn" title="Inventory"><i class="bx bx-box"></i></a>
+      {% endif %}
+      <a href="{{ url_for('add_order') }}" class="nav-btn active" title="Add Order"><i class="bx bx-cart-add"></i></a>
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+      {% endif %}
+    </nav>
+
+    <div class="nav-right profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span>Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <a class="profile-action" href="{{ url_for('home') }}?form=login">
+            <i class="bx bx-log-in"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<h2 class="section-title">
+  {% if session.get('username') %}
+    <span class="highlight">{{ session.get('username') }}</span>, Order now!
+  {% else %}
+    <span class="highlight">Guest</span>, Order now!
+  {% endif %}
+</h2>
+
+<div class="container">
+  {% for item in menu_items %}
+  <div class="card {% if item['availability'] != 'Available' %}unavailable{% endif %}" 
+       data-available="{{ 'true' if item['availability'] == 'Available' else 'false' }}">
+    <h3>{{ item['name'] }}</h3>
+    <img src="{{ url_for('static', filename=item['name'].replace(' ', '') + '.jpg') }}" alt="{{ item['name'] }}">
+    <p>₱{{ item['price'] }}</p>
+
+    <!-- ⭐ Always-updated rating -->
+    <div class="rating">
+      <i class="bx bxs-star"></i> {{ item['rating'] | default(0) }}/5
+    </div>
+
+    <!-- Stock Information -->
+    <div class="stock-info">
+      <p>Status: 
+        <span class="status-{{ item.availability|lower }}">
+          {{ item.availability }}
+        </span>
+      </p>
+      <p>Stock: 
+        <span class="stock-{% if item.stock == 0 %}out{% elif item.stock <= 5 %}low{% else %}good{% endif %}">
+          {{ item.stock }} available
+        </span>
+      </p>
+    </div>
+
+    <div class="quantity">
+      <button class="minus {% if item['availability'] != 'Available' %}unavailable{% endif %}">-</button>
+      <span class="count">0</span>
+      <button class="plus {% if item['availability'] != 'Available' %}unavailable{% endif %}">+</button>
+    </div>
+
+    <!-- Hidden quantity input for form submission -->
+    <input type="hidden" name="food" value="{{ item.name }}">
+    <input type="number" name="quantity" min="0" max="{{ item.stock }}" value="0" 
+           class="quantity-input-hidden" data-food="{{ item.name }}">
+  </div>
+  {% endfor %}
+</div>
+
+<div class="footer-bar">
+  <div>Total Price: ₱<span id="totalPrice">0.00</span></div>
+  <button id="orderBtn" {% if not session.get('user_id') %}onclick="openGuestModal(); return false;"{% endif %}>Add to Order</button>
+</div>
+
+<div class="popup" id="orderPopup">
+  <div class="popup-content">
+    <span class="close-btn" id="closePopup">&times;</span>
+    <h2>Confirm Your Order</h2>
+
+    <!-- Simple Step-by-Step Instructions -->
+    <div class="instruction-box">
+      <h3>📋 How to Complete Your Order:</h3>
+      <ol class="steps-list">
+        <li><strong>Review</strong> your order summary below</li>
+        <li><strong>Scan</strong> the QR code using GCash app</li>
+        <li><strong>Pay</strong> the exact amount shown</li>
+        <li><strong>Screenshot</strong> your payment receipt</li>
+        <li><strong>Upload</strong> the receipt image</li>
+        <li><strong>Confirm</strong> to submit your order</li>
+      </ol>
+    </div>
+
+    <!-- GCash QR Payment Section -->
+    <div class="qr-section">
+      <p id="qrAmountText" class="amount-highlight">Amount to pay: ₱0.00</p>
+      <small class="qr-instruction">
+        💡 <strong>Tip:</strong> Open GCash → Scan QR → Enter exact amount
+      </small>
+      <img src="{{ url_for('static', filename='qr.jpg') }}" alt="GCash QR Code" class="gcash-qr">
+      <small class="qr-note">
+        📸 <strong>Don't forget:</strong> Take screenshot of payment confirmation
+      </small>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="summary-section">
+      <h4>🛒 Your Order:</h4>
+      <div id="orderSummary"><p>No items selected yet.</p></div>
+    </div>
+
+    <!-- Order Form -->
+    <form id="orderForm" method="POST" action="{{ url_for('add_order') }}" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="custName">Your Name:</label>
+        <input type="text" name="cust_name" id="custName"
+              value="{{ cust_name }}" placeholder="Enter your name" required readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="custPhone">Phone Number:</label>
+        <input type="tel" name="cust_contact" id="custPhone"
+              value="{{ cust_contact }}" placeholder="09XXXXXXXXX" required readonly>
+      </div>
+      
+      <input type="text" name="order_date" id="orderDate" readonly>
+      <div id="hiddenInputs"></div>
+
+      <!-- Receipt Upload Section -->
+      <div class="upload-section">
+          <!-- Remove the 'for' attribute to make label not clickable -->
+          <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+              📸 Upload Payment Receipt: <span style="color: #ff4444;">*</span>
+          </label>
+          <small class="upload-note">Required: Screenshot of your GCash payment confirmation</small>
+          
+          <div class="upload-area" id="uploadArea">
+              <i class='bx bx-cloud-upload' style="font-size: 2rem; color: #666; margin-bottom: 8px;"></i>
+              <p style="margin: 0; color: #666;">Click to upload receipt image</p>
+              <small style="color: #888;">JPG, PNG, GIF (Max 5MB)</small>
+              <input type="file" id="orderImage" name="order_image" accept="image/*" required 
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+          </div>
+          
+          <div class="upload-status" id="uploadStatus" style="display: none; margin-top: 10px; padding: 8px; border-radius: 6px; background: #e8f5e8; color: #2e7d32;">
+              <i class='bx bx-check-circle'></i> <span id="fileName">File ready for upload</span>
+          </div>
+          
+          <small class="file-note" style="display: block; margin-top: 8px; color: #666;">
+              <i class='bx bx-info-circle'></i> Required to verify your payment
+          </small>
+      </div>
+
+      <img id="imagePreview" style="display:none; width:100%; max-width:250px; margin-top:10px; border-radius:10px; border:2px solid #4CAF50;">
+
+      <!-- Update confirm button to show disabled state -->
+      <button type="submit" class="confirm-btn" id="confirmOrderBtn" disabled style="opacity: 0.6; cursor: not-allowed;">
+          <i class='bx bx-upload'></i> Upload Receipt to Confirm Order
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Pass the Flask URL to JS
+  const homeUrl = "{{ url_for('home') }}";
+</script>
+
+<script src="{{ url_for('static', filename='add_order.js') }}"></script>
+</body>
+</html>

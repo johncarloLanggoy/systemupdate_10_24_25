@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Leshley's Eatery - Dashboard</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+<header>
+  <div class="logo" style="color: chocolate;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">Leshley's Eatery
+  </div>
+  
+  <!-- Mobile Hamburger Button -->
+  <button class="mobile-menu-btn" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-wrapper">
+    <nav class="nav-center">
+      {% if session.get('is_admin') or session.get('is_staff') %}
+        <a href="{{ url_for('dashboard') }}" class="nav-btn active" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('inventory') }}" class="nav-btn" title="Inventory"><i class="bx bx-box"></i></a>
+        <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+      {% else %}
+        <div class="nav-dropdown">
+          <button class="nav-btn dropdown-btn">Main Page<i class="bx bx-chevron-down"></i></button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('home') }}"><i class="bx bx-home"></i> Home</a>
+            <a href="{{ url_for('home') }}#menu"><i class="fa-regular fa-clipboard"></i> Menu</a>
+            <a href="{{ url_for('home') }}#about"><i class="bx bx-info-circle"></i> About Us</a>
+            <a href="{{ url_for('home') }}#rate"><i class="bx bx-star"></i> Ratings</a>
+            <a href="{{ url_for('home') }}#wews"><i class="fa-solid fa-building"></i> Leshley's Eatery</a>
+          </div>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="nav-btn active" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('add_order') }}" class="nav-btn" title="Add Order"><i class="bx bx-cart-add"></i></a>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+        {% endif %}
+      {% endif %}
+    </nav>
+
+    <!-- MOVED PROFILE OUTSIDE NAV-CENTER -->
+    <div class="nav-right profile-dropdown">
+      <button class="nav-btn profile-btn">
+        <i class="bx bx-user-circle"></i>
+        <span class="profile-text">Profile</span>
+        <i class="bx bx-chevron-down"></i>
+      </button>
+      <div class="profile-menu">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+        {% else %}
+          <a class="profile-action" href="{{ url_for('home') }}?form=login">
+            <i class="bx bx-log-in"></i> Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+    <h2>
+      Welcome, {% if session.get('username') %}{{ session.get('username') }}{% else %}Guest{% endif %}
+    </h2>
+    <p>This is your dashboard. Manage your orders and menu availability.</p>
+</main>
+
+<div class="dashboard-container container">
+  <table>
+    <thead>
+      <tr>
+        <th>Food</th>
+        <th>Category</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.food }}</td>
+        <td>{{ order.category }}</td>
+        <td>
+          <div class="switch-container">
+            {% if session.get('is_staff') or session.get('is_admin') %}
+            <label class="switch">
+              <input type="checkbox" data-food="{{ order.food }}" {% if order.status=='Available' %}checked{% endif %}>
+              <span class="slider round"></span>
+            </label>
+            {% endif %}
+            <span class="status-label">{{ order.status }}</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>

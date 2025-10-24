@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leshley's Eatery - Inventory</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='inventory.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    {% if session.get('is_admin') %}
+  <div style="
+      position: absolute;
+      top: 75px;
+      left: 20px;
+      z-index: 1000;
+  ">
+    <a href="{{ url_for('admin_users') }}" 
+      style="
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 16px;
+          background-color: #D2691E;
+          color: #fff;
+          font-weight: 600;
+          text-decoration: none;
+          border-radius: 8px;
+          box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+          transition: background-color 0.3s ease, transform 0.2s ease;
+      "
+      onmouseover="this.style.backgroundColor='#ffb347'; this.style.transform='scale(1.07)';"
+      onmouseout="this.style.backgroundColor='#D2691E'; this.style.transform='scale(1)';"
+    >
+        Manage Users
+    </a>
+  </div>
+  {% endif %}
+  <div style="
+      position: absolute;
+      top: 75px;
+      left: 180px;  /* Adjusted to be next to Manage Users button */
+      z-index: 1000;
+  ">
+    <a href="{{ url_for('order_images') }}" 
+      style="
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 16px;
+          background-color: #D2691E;
+          color: #fff;
+          font-weight: 600;
+          text-decoration: none;
+          border-radius: 8px;
+          box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+          transition: background-color 0.3s ease, transform 0.2s ease;
+      "
+      onmouseover="this.style.backgroundColor='#ffb347'; this.style.transform='scale(1.07)';"
+      onmouseout="this.style.backgroundColor='#D2691E'; this.style.transform='scale(1)';"
+    >
+        <i class='bx bx-image'></i> Order Images
+    </a>
+  </div>
+  <header>
+    <div class="logo" style="color: chocolate;">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img"> Leshley's Eatery
+    </div>
+    <div class="nav-wrapper">
+      <nav class="nav-center">
+        <a href="{{ url_for('dashboard') }}" class="nav-btn" title="Dashboard"><i class="bx bx-grid-alt"></i></a>
+        <a href="{{ url_for('inventory') }}" class="nav-btn active" title="Inventory"><i class="bx bx-box"></i></a>
+        <a href="{{ url_for('view_orders') }}" class="nav-btn" title="Orders"><i class="bx bx-receipt"></i></a>
+      </nav>
+      <div class="nav-right profile-dropdown">
+        <button class="nav-btn profile-btn">
+          <i class="bx bx-user-circle"></i><span>Profile</span><i class="bx bx-chevron-down"></i>
+        </button>
+        <div class="profile-menu">
+          {% if session.get('user_id') %}
+            <a href="{{ url_for('logout') }}"><i class="bx bx-log-out"></i> Logout</a>
+          {% else %}
+            <a class="profile-action" href="{{ url_for('home') }}?form=login">
+              <i class="bx bx-log-in"></i> Login
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="inventory-main">
+    <h2>Quick Overview of Inventory</h2>
+    <div class="admin-container">
+      <!-- Dashboard Cards -->
+      <div class="admin-cards">
+        <div class="admin-card"><h3>Ongoing Orders</h3><p>{{ ongoing_orders }}</p></div>
+        <div class="admin-card"><h3>Total Customers</h3><p>{{ total_customers }}</p></div>
+        <div class="admin-card"><h3>Total Orders</h3><p>{{ total_sales }}</p></div>
+        <div class="admin-card"><h3>Total Amount Collected</h3><p>₱{{ total_amount }}</p></div>
+      </div>
+
+      <!-- Users Table -->
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Username</th><th>Email</th><th>Phone</th><th>Address</th><th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            {% if not user['is_staff'] %}
+              <tr>
+                <td>{{ user['username'] }}</td>
+                <td>{{ user['email'] }}</td>
+                <td>{{ user['phone'] }}</td>
+                <td>{{ user['address'] }}</td>
+                <td>
+                  {% if user['is_admin'] %} Admin
+                  {% else %} Customer
+                  {% endif %}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ===== Stock Management ===== -->
+  <div class="stock-management">
+    <h3>📦 Manage Food Stock</h3>
+    <table>
+      <thead><tr><th>Food</th><th>Current Stock</th><th>Add</th></tr></thead>
+      <tbody>
+        {% for food, stock in food_stock.items() %}
+        <tr>
+          <td>{{ food }}</td><td>{{ stock }}</td>
+          <td>
+            <form action="{{ url_for('update_stock') }}" method="POST" class="stock-form">
+              <input type="hidden" name="food_name" value="{{ food }}">
+              <input type="number" name="new_stock" min="0" placeholder="Enter amount to add">
+              <button type="submit">Add</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== Ingredient Status ===== -->
+  <div class="ingredient-status">
+      <h3>📊 Ingredient Usage</h3>
+      <div class="ingredient-grid">
+          {% for ingredient in ingredients_data %}
+          <div class="ingredient-item">
+              <span class="ingredient-name">{{ ingredient.name }}</span>
+              <span class="ingredient-stock">{{ ingredient.current_stock }} {{ ingredient.unit }}</span>
+              <div class="ingredient-bar">
+                  <div class="ingredient-fill" data-width="{{ (ingredient.current_stock / 100) * 100 }}"></div>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+  </div>
+
+  <div class="charts-container">
+    <div class="chart-card"><h3>📈 Sales Trends</h3><canvas id="salesTrendChart"></canvas></div>
+    <div class="chart-card"><h3>🏆 Best-selling Items</h3><canvas id="bestSellingChart"></canvas></div>
+    <div class="chart-card"><h3>📦 Stock Distribution</h3><canvas id="stockChart"></canvas></div>
+  </div>
+
+  <!-- ===== Ingredients Management ===== -->
+  <div class="stock-management">
+      <h3>🥩 Manage Ingredients</h3>
+      <table>
+          <thead>
+              <tr>
+                  <th>Ingredient</th>
+                  <th>Current Stock</th>
+                  <th>Unit</th>
+                  <th>Add</th>
+                  <th>Update</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for ingredient in ingredients_data %}
+              <tr>
+                  <td>{{ ingredient.name }}</td>
+                  <td>{{ ingredient.current_stock }}</td>
+                  <td class="unit-info">{{ ingredient.unit }}</td>
+
+                  <!-- Add Stock Form -->
+                  <td>
+                      <form action="{{ url_for('update_ingredient_stock') }}" method="POST" class="stock-form" data-action="add">
+                          <input type="hidden" name="ingredient_name" value="{{ ingredient.name }}">
+                          <input type="number" name="new_stock" min="0" placeholder="Amount to add">
+                          <button type="submit">Add</button>
+                      </form>
+                  </td>
+
+                  <!-- Update Stock Form -->
+                  <td>
+                      <form action="{{ url_for('update_ingredient_stock') }}" method="POST" class="stock-form" data-action="update">
+                          <input type="hidden" name="ingredient_name" value="{{ ingredient.name }}">
+                          <input type="number" name="new_stock" min="0" placeholder="New stock value">
+                          <button type="submit">Update</button>
+                      </form>
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+
+  <script>
+    const parseData = d => JSON.parse(d || '[]');
+    const salesLabels = parseData('{{ sales_labels|tojson|safe }}');
+    const salesTotals = parseData('{{ sales_totals|tojson|safe }}');
+    const bestSellingLabels = parseData('{{ best_selling_labels|tojson|safe }}');
+    const bestSellingTotals = parseData('{{ best_selling_totals|tojson|safe }}');
+    const stockLabels = parseData('{{ stock_labels|tojson|safe }}');
+    const stockTotals = parseData('{{ stock_totals|tojson|safe }}');
+    const ingredientLabels = parseData('{{ ingredient_labels|tojson|safe }}');
+    const ingredientTotals = parseData('{{ ingredient_totals|tojson|safe }}');
+  </script>
+
+  <script src="{{ url_for('static', filename='inventory.js') }}"></script>
+</body>
+</html>
